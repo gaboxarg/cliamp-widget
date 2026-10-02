@@ -1,63 +1,63 @@
 # cliamp-widget
 
-Widget de escritorio y extensión para **Pi** que muestran y controlan la música
-que suena en [cliamp](https://github.com/bjarneo/cliamp) — el reproductor de
-música retro para terminal.
+**English** · [Español](README.es.md)
 
-> Muestra la tapa del álbum, el título, el artista, el progreso con tiempo
-> transcurrido/total y controles de reproducción, directamente en el escritorio
-> (y, opcionalmente, integra cliamp con tu agente Pi).
+Desktop widget and **Pi** extension that show and control the music playing in
+[cliamp](https://github.com/bjarneo/cliamp) — the retro terminal music player.
+
+> Shows album art, title, artist, progress with elapsed/total time, and playback
+> controls, right on your desktop (and optionally integrates cliamp with your
+> Pi agent).
 
 ---
 
-## Qué incluye
+## What's included
 
-El repo tiene **dos componentes independientes**; podés usar uno, el otro o ambos:
+The repo contains **two independent components**; use one, the other, or both:
 
-| Componente | Para quién | Qué hace |
+| Component | For | What it does |
 |---|---|---|
-| `omarchy-plugin/` | Escritorio **Omarchy 4+** (Hyprland + Quickshell) | Tarjeta flotante "now playing" + botón en la barra |
-| `extension/` | **Pi** coding agent | Herramientas, comando `/cliamp` y atajos para controlar cliamp |
+| `omarchy-plugin/` | **Omarchy 4+** desktop (Hyprland + Quickshell) | Floating "now playing" card + bar button |
+| `extension/` | **Pi** coding agent | Tools, `/cliamp` command, and shortcuts to control cliamp |
 
 ---
 
-## 1) Widget de escritorio (Omarchy / Quickshell)
+## 1) Desktop widget (Omarchy / Quickshell)
 
-Una tarjeta flotante que aparece en el escritorio mientras suena música:
+A floating card that appears on the desktop while music plays:
 
 ```
 ┌─────────────────────────────────────────────┐
-│  ┌──────┐  Título de la canción             │
-│  │ tapa │  Artista                          │
+│  ┌──────┐  Track title                      │
+│  │ art  │  Artist                           │
 │  │      │  ⏮  ▶  ⏭                          │
 │  └──────┘  ━━━━━━━━━━━━━━━━  9:01 / 59:20  │
 └─────────────────────────────────────────────┘
 ```
 
-### Características
+### Features
 
-- 🎨 **Tapa del álbum**: se deriva del thumbnail de YouTube Music y se cachea.
-- ▶️ **Controles**: anterior / play-pausa / siguiente.
-- ⏱️ **Tiempo**: `transcurrido / total` (formato `m:ss`, o `h:mm:ss` si supera la hora).
-- 📊 **Barra de progreso** en vivo.
-- ✋ **Arrastrable**: movelo a cualquier parte del escritorio; la posición se guarda.
-- 🙈 **Auto-ocultado**: desaparece cuando no hay nada reproduciéndose.
-- ⏲️ **Modo "peek"**: opcionalmente aparecer cada N segundos (ver configuración).
-- 🎛️ **Botón en la barra**: un ícono ♫ en la barra de Omarchy para mostrar/ocultar.
-- 🔌 **IPC**: controlable por terminal con `omarchy-shell cliamp-widget toggle`.
+- 🎨 **Album art**: derived from the YouTube Music thumbnail and cached.
+- ▶️ **Controls**: previous / play-pause / next.
+- ⏱️ **Time**: `elapsed / total` (`m:ss`, or `h:mm:ss` when over an hour).
+- 📊 **Progress bar** updating live.
+- ✋ **Draggable**: move it anywhere; the position is persisted.
+- 🙈 **Auto-hide**: disappears when nothing is playing.
+- ⏲️ **Peek mode**: optionally appear every N seconds (see configuration).
+- 🎛️ **Bar button**: a ♫ icon in the Omarchy bar to show/hide it.
+- 🔌 **IPC**: scriptable via `omarchy-shell cliamp-widget toggle`.
 
-### Requisitos
+### Requirements
 
-- [cliamp](https://github.com/bjarneo/cliamp) v2.x con un proveedor configurado
-  (por defecto **YT Music**).
-- **Omarchy 4+** (Hyprland + el shell Quickshell).
-- `jq`, `curl` y `systemd` (servicios de usuario).
+- [cliamp](https://github.com/bjarneo/cliamp) v2.x with a provider configured
+  (**YT Music** by default).
+- **Omarchy 4+** (Hyprland + the Quickshell shell).
+- `jq`, `curl`, and `systemd` (user services).
 
-> La tapa se obtiene del thumbnail de YouTube (YT Music). Otros proveedores
-> (Spotify, Tidal, Qobuz…) no exponen arte vía cliamp; el título y los controles
-> funcionan igual.
+> Art comes from the YouTube thumbnail (YT Music). Other providers (Spotify,
+> Tidal, Qobuz…) don't expose art through cliamp; title and controls still work.
 
-### Configuración
+### Configuration
 
 `~/.config/omarchy/plugins/gabox.cliamp-now-playing/settings.json`:
 
@@ -69,81 +69,81 @@ Una tarjeta flotante que aparece en el escritorio mientras suena música:
 }
 ```
 
-| Clave | Descripción |
+| Key | Description |
 |---|---|
-| `peekEverySeconds` | `0` = siempre visible mientras suena; `N > 0` = aparecer cada N segundos. |
-| `peekDurationSeconds` | Cuántos segundos queda visible en cada "peek". |
-| `showOnTrackChange` | Mostrarlo brevemente al cambiar de canción. |
+| `peekEverySeconds` | `0` = always visible while playing; `N > 0` = show every N seconds. |
+| `peekDurationSeconds` | How long it stays visible on each peek. |
+| `showOnTrackChange` | Briefly show it when the track changes. |
 
-Los cambios se aplican solos a los ~10 segundos (no hace falta reiniciar).
+Changes apply on their own within ~10 seconds (no restart needed).
 
-### Uso
+### Usage
 
-- **Arrastrá** la tarjeta para moverla (la posición queda guardada).
-- **Clic** en ⏮ / ▶ / ⏭ para controlar la reproducción.
-- **Botón ♫** en la barra (sección derecha) para mostrar/ocultar el widget.
-- Por terminal:
+- **Drag** the card to move it (the position is saved).
+- **Click** ⏮ / ▶ / ⏭ to control playback.
+- **♫ button** in the bar (right section) to show/hide the widget.
+- From the terminal:
 
 ```bash
-omarchy-shell cliamp-widget toggle   # mostrar/ocultar
-omarchy-shell cliamp-widget state    # estado actual (JSON)
+omarchy-shell cliamp-widget toggle   # show/hide
+omarchy-shell cliamp-widget state    # current state (JSON)
 ```
 
 ---
 
-## 2) Extensión para Pi
+## 2) Pi extension
 
-Integra cliamp con el agente Pi.
+Integrates cliamp with the Pi agent.
 
-### Qué aporta
+### What it provides
 
-- **Herramientas** (el modelo las usa automáticamente):
-  - `cliamp_search` — buscar música.
-  - `cliamp_play` — reproducir (búsqueda, índice, playlist o reanudar).
+- **Tools** (the model uses them automatically):
+  - `cliamp_search` — search for music.
+  - `cliamp_play` — play (by search, index, playlist, or resume).
   - `cliamp_control` — play / pause / toggle / next / prev / stop / volume.
-  - `cliamp_status` — estado de reproducción.
-  - `cliamp_playlists` — listar playlists del proveedor.
-- **Comando** `/cliamp`:
+  - `cliamp_status` — playback status.
+  - `cliamp_playlists` — list provider playlists.
+- **Command** `/cliamp`:
 
 ```
-/cliamp search <query>       buscar (resultados numerados)
-/cliamp play [n]             reproducir resultado n (o reanudar)
+/cliamp search <query>       search (numbered results)
+/cliamp play [n]             play result n (or resume)
 /cliamp pause | toggle | next | prev | stop
-/cliamp volume <dB>          ajustar volumen
-/cliamp status               estado actual
-/cliamp playlists            listar playlists
-/cliamp playlist <nombre>    cargar una playlist
+/cliamp volume <dB>          adjust volume
+/cliamp status               current state
+/cliamp playlists            list playlists
+/cliamp playlist <name>      load a playlist
 ```
 
-- **Atajos globales** (funcionan mientras escribís):
-  - `Ctrl+Alt+Espacio` — play/pausa.
-  - `Ctrl+Alt+←` / `Ctrl+Alt+→` — anterior / siguiente.
+- **Global shortcuts** (work while typing):
+  - `Ctrl+Alt+Space` — play/pause.
+  - `Ctrl+Alt+←` / `Ctrl+Alt+→` — previous / next.
 
-### Requisitos
+### Requirements
 
-- [Pi](https://github.com/earendil-works/pi) con las extensiones de usuario en
+- [Pi](https://github.com/earendil-works/pi) with user extensions under
   `~/.pi/agent/extensions/`.
 
 ---
 
-## Instalación
+## Installation
 
-### Automática (recomendada)
+### Automatic (recommended)
 
 ```bash
 git clone https://github.com/gabox7/cliamp-widget.git
 cd cliamp-widget
-./install.sh              # instala todo lo que detecte
-./install.sh --desktop-only   # solo el widget de escritorio
-./install.sh --pi-only        # solo la extensión de Pi
+./install.sh              # installs everything it detects
+./install.sh --desktop-only   # desktop widget only
+./install.sh --pi-only        # Pi extension only
 ```
 
-El instalador es idempotente: copia los archivos, activa el servicio de
-systemd y habilita el plugin en el shell de Omarchy.
+The installer is idempotent: it copies the files, enables the systemd service,
+and enables the plugin in the Omarchy shell.
 
 ### Manual
 
-**Widget de escritorio:**
+**Desktop widget:**
 
 ```bash
 # 1) plugin
@@ -151,64 +151,64 @@ mkdir -p ~/.config/omarchy/plugins/gabox.cliamp-now-playing
 cp omarchy-plugin/* ~/.config/omarchy/plugins/gabox.cliamp-now-playing/
 chmod +x ~/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh
 
-# 2) servicio systemd (daemon que lee cliamp y baja la tapa)
+# 2) systemd service (daemon that reads cliamp and downloads the art)
 mkdir -p ~/.config/systemd/user
 cp systemd/cliamp-widget.service ~/.config/systemd/user/
 systemctl --user daemon-reload
 systemctl --user enable --now cliamp-widget.service
 
-# 3) habilitar el plugin en el shell
+# 3) enable the plugin in the shell
 omarchy-shell shell rescanPlugins
 omarchy plugin enable gabox.cliamp-now-playing
 omarchy restart shell
 ```
 
-**Extensión de Pi:**
+**Pi extension:**
 
 ```bash
 mkdir -p ~/.pi/agent/extensions
 cp extension/cliamp.ts ~/.pi/agent/extensions/cliamp.ts
-# y recargá Pi con /reload (o reiniciá Pi)
+# then reload Pi with /reload (or restart Pi)
 ```
 
 ---
 
-## Cómo funciona
+## How it works
 
 ```
                  ┌─────────────────────────────┐
  cliamp ──1s──▶ │ helper.sh (systemd service) │──▶ status.json + cover.jpg
                  └─────────────────────────────┘            │
                                                             ▼
-        Service.qml (Quickshell)  ◀── lee cada 1s ── ~/.local/state/cliamp-widget/
+        Service.qml (Quickshell)  ◀── reads every 1s ── ~/.local/state/cliamp-widget/
             │
-            ├── tarjeta flotante (PanelWindow, layer-shell)
-            └── botón de barra (BarWidget.qml) ⇄ serviceFor()
+            ├── floating card (PanelWindow, layer-shell)
+            └── bar button (BarWidget.qml) ⇄ serviceFor()
 ```
 
-1. `helper.sh` (servicio de systemd) sondea `cliamp remote state` cada segundo,
-   extrae título/artista/estado/posición y baja la tapa de YouTube Music a
+1. `helper.sh` (systemd service) polls `cliamp remote state` every second,
+   extracts title/artist/state/position, and downloads the YouTube Music art to
    `~/.local/state/cliamp-widget/covers/`.
-2. `Service.qml` lee ese estado y dibuja la tarjeta; los botones ejecutan
+2. `Service.qml` reads that state and draws the card; the buttons run
    `cliamp toggle|next|prev`.
-3. La extensión de Pi habla con la misma API IPC de cliamp para búsquedas,
-   reproducción y controles desde el agente.
+3. The Pi extension talks to the same cliamp IPC API for searches, playback,
+   and controls from the agent.
 
-Nada de esto requiere modificar cliamp: usa su API IPC (`cliamp remote`).
+None of this requires modifying cliamp: it uses its IPC API (`cliamp remote`).
 
 ---
 
-## Solución de problemas
+## Troubleshooting
 
-| Problema | Solución |
+| Problem | Solution |
 |---|---|
-| El widget no aparece | Verificá que cliamp esté corriendo y que suene algo (`cliamp status`). El widget se oculta cuando no hay reproducción. |
-| No hay tapa | Solo funciona con YT Music (thumbnail de YouTube). Revisá la salida de `systemctl --user status cliamp-widget.service`. |
-| No aparece el botón en la barra | `omarchy-shell shell rescanPlugins` y confirmá que `gabox.cliamp-now-playing` esté en `bar.layout` (`cat ~/.config/omarchy/shell.json`). |
-| Cambios de QML no se aplican | Los servicios `keepLoaded` requieren reiniciar el shell: `omarchy restart shell`. |
+| Widget doesn't appear | Make sure cliamp is running and something is playing (`cliamp status`). The widget hides when nothing is playing. |
+| No art | Only works with YT Music (YouTube thumbnail). Check `systemctl --user status cliamp-widget.service`. |
+| Bar button missing | `omarchy-shell shell rescanPlugins` and confirm `gabox.cliamp-now-playing` is in `bar.layout` (`cat ~/.config/omarchy/shell.json`). |
+| QML changes don't apply | `keepLoaded` services need a shell restart: `omarchy restart shell`. |
 
 ---
 
-## Licencia
+## License
 
 [MIT](LICENSE)
