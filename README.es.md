@@ -18,7 +18,7 @@ El repo tiene **dos componentes independientes**; podés usar uno, el otro o amb
 
 | Componente | Para quién | Qué hace |
 |---|---|---|
-| `omarchy-plugin/` | Escritorio **Omarchy 4+** (Hyprland + Quickshell) | Tarjeta flotante "now playing" + botón en la barra |
+| Archivos del plugin (raíz del repo) | Escritorio **Omarchy 4+** (Hyprland + Quickshell) | Tarjeta flotante "now playing" + botón en la barra |
 | `extension/` | **Pi** coding agent | Herramientas, comando `/cliamp` y atajos para controlar cliamp |
 
 ---
@@ -143,6 +143,26 @@ cd cliamp-widget
 El instalador es idempotente: copia los archivos, activa el servicio de
 systemd y habilita el plugin en el shell de Omarchy.
 
+### Vía `omarchy plugin add` (solo el plugin)
+
+Si solo querés el widget de escritorio y preferís el gestor de plugins de Omarchy:
+
+```bash
+omarchy plugin add https://github.com/gabox7/cliamp-widget.git --enable
+```
+
+Después configurá el daemon helper (sondea cliamp y baja la tapa):
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ~/.config/omarchy/plugins/gabox.cliamp-now-playing/systemd/cliamp-widget.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now cliamp-widget.service
+```
+
+(O simplemente corré `~/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh &`
+si preferís no usar systemd.)
+
 ### Manual
 
 **Widget de escritorio:**
@@ -150,7 +170,7 @@ systemd y habilita el plugin en el shell de Omarchy.
 ```bash
 # 1) plugin
 mkdir -p ~/.config/omarchy/plugins/gabox.cliamp-now-playing
-cp omarchy-plugin/* ~/.config/omarchy/plugins/gabox.cliamp-now-playing/
+cp manifest.json Service.qml BarWidget.qml helper.sh settings.json ~/.config/omarchy/plugins/gabox.cliamp-now-playing/
 chmod +x ~/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh
 
 # 2) servicio systemd (daemon que lee cliamp y baja la tapa)

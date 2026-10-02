@@ -67,12 +67,12 @@ if [[ "$INSTALL_DESKTOP" -eq 1 ]]; then
 
   # 1) plugin Quickshell
   mkdir -p "$PLUGIN_DIR"
-  cp "$ROOT/omarchy-plugin/manifest.json" "$PLUGIN_DIR/manifest.json"
-  cp "$ROOT/omarchy-plugin/Service.qml"   "$PLUGIN_DIR/Service.qml"
-  cp "$ROOT/omarchy-plugin/BarWidget.qml" "$PLUGIN_DIR/BarWidget.qml"
-  cp "$ROOT/omarchy-plugin/helper.sh"     "$PLUGIN_DIR/helper.sh"
+  cp "$ROOT/manifest.json" "$PLUGIN_DIR/manifest.json"
+  cp "$ROOT/Service.qml"   "$PLUGIN_DIR/Service.qml"
+  cp "$ROOT/BarWidget.qml" "$PLUGIN_DIR/BarWidget.qml"
+  cp "$ROOT/helper.sh"     "$PLUGIN_DIR/helper.sh"
   if [[ ! -f "$PLUGIN_DIR/settings.json" ]]; then
-    cp "$ROOT/omarchy-plugin/settings.json" "$PLUGIN_DIR/settings.json"
+    cp "$ROOT/settings.json" "$PLUGIN_DIR/settings.json"
   fi
   chmod +x "$PLUGIN_DIR/helper.sh"
   ok "Plugin instalado en $PLUGIN_DIR"
