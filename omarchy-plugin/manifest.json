@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "gabox.cliamp-now-playing",
+  "name": "cliamp Now Playing",
+  "version": "1.1.0",
+  "author": "gabox",
+  "description": "Floating desktop widget showing cliamp cover art, track info, and playback controls. Draggable, auto-hides when idle, and controllable from the bar.",
+  "kinds": ["service", "bar-widget"],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "cliamp Widget",
+    "description": "Show/hide the floating cliamp now-playing widget",
+    "category": "Media",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

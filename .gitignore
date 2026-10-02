@@ -1,0 +1,4 @@
+# build artifacts / OS junk
+.DS_Store
+*.swp
+*.tmp

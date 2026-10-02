@@ -1,0 +1,13 @@
+[Unit]
+Description=cliamp desktop widget helper
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target
