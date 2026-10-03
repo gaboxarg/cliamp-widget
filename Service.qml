@@ -12,7 +12,10 @@ Item {
   readonly property string statusFile: stateHome + "/cliamp-widget/status.json"
   readonly property string positionFile: stateHome + "/cliamp-widget/position.json"
   property var manifest: null
-  readonly property string settingsFile: (manifest && manifest.__sourceDir ? String(manifest.__sourceDir) : (Quickshell.env("HOME") + "/.config/omarchy/plugins/gabox.cliamp-now-playing")) + "/settings.json"
+  readonly property string pluginDir: (manifest && manifest.__sourceDir ? String(manifest.__sourceDir) : (Quickshell.env("HOME") + "/.config/omarchy/plugins/gabox.cliamp-now-playing"))
+  readonly property string settingsFile: pluginDir + "/settings.json"
+  readonly property string helperPath: pluginDir + "/helper.sh"
+  readonly property string helperLog: stateHome + "/cliamp-widget/helper.log"
 
   // ---- track state ----
   property string title: ""
@@ -132,6 +135,13 @@ Item {
   }
   Process { id: savePosProc; command: [] }
   Process { id: actionProc; command: [] }
+  Process {
+    id: helperProc
+    // Long-running: polls cliamp and downloads the art. helper.sh has a
+    // single-instance guard, so if the systemd service already runs one,
+    // this one exits immediately.
+    command: ["bash", "-c", "exec " + root.helperPath + " >> '" + root.helperLog + "' 2>&1"]
+  }
 
   Timer {
     id: statusTimer
@@ -169,6 +179,7 @@ Item {
     statusProc.running = true
     settingsProc.running = true
     positionProc.running = true
+    helperProc.running = true
   }
 
   IpcHandler {

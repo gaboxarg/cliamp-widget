@@ -52,7 +52,7 @@ A floating card that appears on the desktop while music plays:
 - [cliamp](https://github.com/bjarneo/cliamp) v2.x with a provider configured
   (**YT Music** by default).
 - **Omarchy 4+** (Hyprland + the Quickshell shell).
-- `jq`, `curl`, and `systemd` (user services).
+- `jq` and `curl` (systemd is optional — the plugin can run its own helper).
 
 > Art comes from the YouTube thumbnail (YT Music). Other providers (Spotify,
 > Tidal, Qobuz…) don't expose art through cliamp; title and controls still work.
@@ -136,52 +136,54 @@ cd cliamp-widget
 ./install.sh              # installs everything it detects
 ./install.sh --desktop-only   # desktop widget only
 ./install.sh --pi-only        # Pi extension only
+./install.sh --with-systemd   # run the helper as a systemd service instead
 ```
 
-The installer is idempotent: it copies the files, enables the systemd service,
-and enables the plugin in the Omarchy shell.
+The installer is idempotent: it copies the files, enables the plugin in the
+Omarchy shell, and (by default) lets the plugin run its own helper.
 
-### Via `omarchy plugin add` (plugin only)
+### Via `omarchy plugin add` (recommended for the widget)
 
-If you only want the desktop widget and prefer Omarchy's plugin manager:
+The widget is self-contained — the plugin starts its own helper, so installing
+the plugin is all you need:
 
 ```bash
 omarchy plugin add https://github.com/gabox7/cliamp-widget.git --enable
 ```
 
-Then set up the helper daemon (it polls cliamp and downloads the art):
+That's it: the card appears while music plays.
 
-```bash
-mkdir -p ~/.config/systemd/user
-cp ~/.config/omarchy/plugins/gabox.cliamp-now-playing/systemd/cliamp-widget.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now cliamp-widget.service
-```
-
-(Or just run `~/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh &`
-if you prefer not to use systemd.)
+> **Optional — systemd instead of the built-in helper.** If you prefer the
+> helper to run as a systemd service (journal logging + auto-restart), install
+> it; the plugin detects the already-running helper and skips its own:
+>
+> ```bash
+> mkdir -p ~/.config/systemd/user
+> cp ~/.config/omarchy/plugins/gabox.cliamp-now-playing/systemd/cliamp-widget.service ~/.config/systemd/user/
+> systemctl --user daemon-reload
+> systemctl --user enable --now cliamp-widget.service
+> omarchy restart shell
+> ```
 
 ### Manual
 
-**Desktop widget:**
+**Desktop widget (self-contained):**
 
 ```bash
-# 1) plugin
+# 1) plugin — starts its own helper
 mkdir -p ~/.config/omarchy/plugins/gabox.cliamp-now-playing
 cp manifest.json Service.qml BarWidget.qml helper.sh settings.json ~/.config/omarchy/plugins/gabox.cliamp-now-playing/
 chmod +x ~/.config/omarchy/plugins/gabox.cliamp-now-playing/helper.sh
 
-# 2) systemd service (daemon that reads cliamp and downloads the art)
-mkdir -p ~/.config/systemd/user
-cp systemd/cliamp-widget.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now cliamp-widget.service
-
-# 3) enable the plugin in the shell
+# 2) enable the plugin in the shell
 omarchy-shell shell rescanPlugins
 omarchy plugin enable gabox.cliamp-now-playing
 omarchy restart shell
 ```
+
+(Optional: to run the helper as a systemd service instead, copy
+`systemd/cliamp-widget.service` to `~/.config/systemd/user/` and run
+`systemctl --user enable --now cliamp-widget.service`.)
 
 **Pi extension:**
 
@@ -196,9 +198,9 @@ cp extension/cliamp.ts ~/.pi/agent/extensions/cliamp.ts
 ## How it works
 
 ```
-                 ┌─────────────────────────────┐
- cliamp ──1s──▶ │ helper.sh (systemd service) │──▶ status.json + cover.jpg
-                 └─────────────────────────────┘            │
+                 ┌───────────────────────────────┐
+ cliamp ──1s──▶ │ helper.sh (started by plugin) │──▶ status.json + cover.jpg
+                 └───────────────────────────────┘            │
                                                             ▼
         Service.qml (Quickshell)  ◀── reads every 1s ── ~/.local/state/cliamp-widget/
             │
@@ -206,8 +208,9 @@ cp extension/cliamp.ts ~/.pi/agent/extensions/cliamp.ts
             └── bar button (BarWidget.qml) ⇄ serviceFor()
 ```
 
-1. `helper.sh` (systemd service) polls `cliamp remote state` every second,
-   extracts title/artist/state/position, and downloads the YouTube Music art to
+1. `helper.sh` (started by the plugin itself, or optionally by systemd) polls
+   `cliamp remote state` every second, extracts title/artist/state/position,
+   and downloads the YouTube Music art to
    `~/.local/state/cliamp-widget/covers/`.
 2. `Service.qml` reads that state and draws the card; the buttons run
    `cliamp toggle|next|prev`.
@@ -223,7 +226,7 @@ None of this requires modifying cliamp: it uses its IPC API (`cliamp remote`).
 | Problem | Solution |
 |---|---|
 | Widget doesn't appear | Make sure cliamp is running and something is playing (`cliamp status`). The widget hides when nothing is playing. |
-| No art | Only works with YT Music (YouTube thumbnail). Check `systemctl --user status cliamp-widget.service`. |
+| No art | Only works with YT Music (YouTube thumbnail). Check `~/.local/state/cliamp-widget/helper.log` (or `systemctl --user status cliamp-widget.service` if using systemd). |
 | Bar button missing | `omarchy-shell shell rescanPlugins` and confirm `gabox.cliamp-now-playing` is in `bar.layout` (`cat ~/.config/omarchy/shell.json`). |
 | QML changes don't apply | `keepLoaded` services need a shell restart: `omarchy restart shell`. |
 

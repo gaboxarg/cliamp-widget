@@ -10,6 +10,19 @@ COVERS_DIR="$STATE_DIR/covers"
 STATUS="$STATE_DIR/status.json"
 mkdir -p "$COVERS_DIR"
 
+# Single-instance guard: the plugin (Quickshell) and the optional systemd
+# service can both try to start this helper; the first one wins.
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/cliamp-widget-helper.pid"
+if [[ -f "$PIDFILE" ]]; then
+  other="$(cat "$PIDFILE" 2>/dev/null || true)"
+  if [[ -n "$other" && "$other" =~ ^[0-9]+$ ]] && kill -0 "$other" 2>/dev/null; then
+    exit 0
+  fi
+  rm -f "$PIDFILE"
+fi
+echo $$ > "$PIDFILE"
+trap 'rm -f "$PIDFILE"' EXIT
+
 write_status() {
   local title="$1" artist="$2" state="$3" art="$4" volume="$5" position="$6" duration="$7"
   jq -n \

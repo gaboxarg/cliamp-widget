@@ -2,6 +2,10 @@
 # cliamp-widget installer
 # Instala el widget de escritorio (Omarchy) y/o la extensión de Pi.
 # Idempotente: se puede correr varias veces.
+#
+# Por defecto el widget es AUTOCONTENIDO: el propio plugin lanza el helper
+# (el daemon que sondea cliamp y baja la tapa). Con --with-systemd, en su
+# lugar se instala un servicio systemd que lo corre.
 set -euo pipefail
 
 PLUGIN_ID="gabox.cliamp-now-playing"
@@ -14,17 +18,19 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 INSTALL_DESKTOP=1
 INSTALL_PI=1
+WITH_SYSTEMD=0
 
 usage() {
   cat <<'EOF'
 Uso: ./install.sh [opciones]
 
-Sin opciones instala todo lo que detecte.
+Sin opciones instala todo lo que detecte (widget autocontenido + extensión de Pi).
 
 Opciones:
-  --desktop-only   instalar solo el widget de escritorio (Omarchy)
-  --pi-only        instalar solo la extensión de Pi
-  -h, --help       esta ayuda
+  --desktop-only    instalar solo el widget de escritorio (Omarchy)
+  --pi-only         instalar solo la extensión de Pi
+  --with-systemd    correr el helper como servicio systemd (en vez del plugin)
+  -h, --help        esta ayuda
 EOF
 }
 
@@ -32,6 +38,7 @@ for arg in "$@"; do
   case "$arg" in
     --desktop-only) INSTALL_DESKTOP=1; INSTALL_PI=0 ;;
     --pi-only)      INSTALL_DESKTOP=0; INSTALL_PI=1 ;;
+    --with-systemd) WITH_SYSTEMD=1 ;;
     -h|--help)      usage; exit 0 ;;
     *) echo "opción desconocida: $arg" >&2; usage; exit 2 ;;
   esac
@@ -58,7 +65,7 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "$INSTALL_DESKTOP" -eq 1 ]]; then
   MISSING=()
-  for c in cliamp jq curl; do
+  for c in cliamp jq curl bash; do
     command -v "$c" >/dev/null 2>&1 || MISSING+=("$c")
   done
   if [[ ${#MISSING[@]} -gt 0 ]]; then
@@ -77,15 +84,19 @@ if [[ "$INSTALL_DESKTOP" -eq 1 ]]; then
   chmod +x "$PLUGIN_DIR/helper.sh"
   ok "Plugin instalado en $PLUGIN_DIR"
 
-  # 2) servicio systemd (daemon helper)
-  if command -v systemctl >/dev/null 2>&1; then
-    mkdir -p "$SERVICE_DIR"
-    cp "$ROOT/systemd/$SERVICE_NAME" "$SERVICE_DIR/$SERVICE_NAME"
-    systemctl --user daemon-reload
-    systemctl --user enable --now "$SERVICE_NAME"
-    ok "Servicio systemd '$SERVICE_NAME' activado"
+  # 2) helper: autocontenido (lo arranca el plugin) o systemd (opcional)
+  if [[ "$WITH_SYSTEMD" -eq 1 ]]; then
+    if command -v systemctl >/dev/null 2>&1; then
+      mkdir -p "$SERVICE_DIR"
+      cp "$ROOT/systemd/$SERVICE_NAME" "$SERVICE_DIR/$SERVICE_NAME"
+      systemctl --user daemon-reload
+      systemctl --user enable --now "$SERVICE_NAME"
+      ok "Helper como servicio systemd ('$SERVICE_NAME')"
+    else
+      warn "systemctl no disponible; el helper lo correrá el propio plugin."
+    fi
   else
-    warn "systemctl no disponible; corré helper.sh a mano para tener tapa y estado."
+    ok "Helper autocontenido (lo arranca el plugin al cargar)"
   fi
 
   # 3) habilitar el plugin en el shell de Omarchy
