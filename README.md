@@ -195,6 +195,26 @@ cp extension/cliamp.ts ~/.pi/agent/extensions/cliamp.ts
 
 ---
 
+## Uninstall
+
+```bash
+# Remove the plugin (also removes the bar button)
+omarchy plugin remove gabox.cliamp-now-playing
+
+# If you used the systemd helper, disable and remove it
+systemctl --user disable --now cliamp-widget.service 2>/dev/null || true
+rm -f ~/.config/systemd/user/cliamp-widget.service
+systemctl --user daemon-reload
+
+# Optional: remove the widget state (cover art cache, saved position)
+rm -rf ~/.local/state/cliamp-widget
+
+# Optional: remove the Pi extension
+rm -f ~/.pi/agent/extensions/cliamp.ts
+```
+
+---
+
 ## How it works
 
 ```

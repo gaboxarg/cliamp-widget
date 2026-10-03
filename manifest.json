@@ -3,7 +3,7 @@
   "id": "gabox.cliamp-now-playing",
   "name": "cliamp Now Playing",
   "version": "1.1.0",
-  "author": "gabox",
+  "author": "gaboxarg",
   "description": "Floating desktop widget showing cliamp cover art, track info, and playback controls. Draggable, auto-hides when idle, and controllable from the bar.",
   "kinds": ["service", "bar-widget"],
   "keepLoaded": true,
