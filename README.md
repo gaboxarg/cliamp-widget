@@ -123,6 +123,25 @@ Integrates cliamp with the Pi agent.
 
 - [Pi](https://github.com/earendil-works/pi) with user extensions under
   `~/.pi/agent/extensions/`.
+- [cliamp](https://github.com/bjarneo/cliamp) installed and on `PATH`.
+- YouTube Music authenticated in cliamp — browser cookies or OAuth. The
+  easiest path is `cliamp setup` (or edit `~/.config/cliamp/config.toml`):
+
+  ```toml
+  [ytmusic]
+  cookies_from = "brave"   # brave, chrome, chromium, firefox, edge, opera, safari
+  ```
+
+  Profile/keyring syntax: `"chrome:Profile 1"`, `"firefox:default-release"`,
+  `"chromium+gnomekeyring"`, `"brave+kwallet"`.
+- `yt-dlp` on `PATH` for playback (`pip install yt-dlp`).
+
+> **401 at the start of a session.** The first search of a fresh Pi session can
+> return `401 Unauthorized` (or `cannot decrypt v11 cookies: no key found`)
+> while cliamp refreshes the browser-cookie session; the next request usually
+> succeeds. The extension retries once and prints a fix instead of the raw
+> error. If it persists, sign in to music.youtube.com in that browser or re-run
+> `cliamp setup` (on Linux keyrings use a suffix like `brave+gnomekeyring`).
 
 ---
 
@@ -249,6 +268,7 @@ None of this requires modifying cliamp: it uses its IPC API (`cliamp remote`).
 | No art | Only works with YT Music (YouTube thumbnail). Check `~/.local/state/cliamp-widget/helper.log` (or `systemctl --user status cliamp-widget.service` if using systemd). |
 | Bar button missing | `omarchy-shell shell rescanPlugins` and confirm `gabox.cliamp-now-playing` is in `bar.layout` (`cat ~/.config/omarchy/shell.json`). |
 | QML changes don't apply | `keepLoaded` services need a shell restart: `omarchy restart shell`. |
+| Pi search returns 401 / auth error | cliamp needs a valid YT Music session. Sign in to music.youtube.com in the configured browser, or re-run `cliamp setup`. On Linux keyrings use `cookies_from = "brave+gnomekeyring"` (or `+kwallet`). |
 
 ---
 

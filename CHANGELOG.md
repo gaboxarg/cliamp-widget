@@ -2,6 +2,18 @@
 
 Todas las versiones notables de **cliamp-widget**.
 
+## [Unreleased]
+
+### Extensión de Pi
+
+- Documentación de requisitos: cliamp instalado, autenticación de YouTube Music
+  (cookies del navegador u OAuth), navegadores soportados (`brave`, `chrome`,
+  `chromium`, `firefox`, `edge`, `opera`, `safari` + perfiles/keyring) y `yt-dlp`.
+- Manejo de errores de autenticación de YT Music (401/403, cookies vencidas,
+  `cannot decrypt cookies`, keyring): reintento automático y mensaje accionable.
+- Fix: desenvuelto de `job.result` en la IPC de cliamp (la búsqueda y la
+  reproducción por query no encontraban las pistas).
+
 ## [1.1.0] - 2026-10-02
 
 Primera versión publicada en el marketplace de Omarchy.

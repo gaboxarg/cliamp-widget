@@ -125,6 +125,26 @@ Integra cliamp con el agente Pi.
 
 - [Pi](https://github.com/earendil-works/pi) con las extensiones de usuario en
   `~/.pi/agent/extensions/`.
+- [cliamp](https://github.com/bjarneo/cliamp) instalado y en el `PATH`.
+- YouTube Music autenticado en cliamp — cookies del navegador u OAuth. Lo más
+  simple es `cliamp setup` (o editar `~/.config/cliamp/config.toml`):
+
+  ```toml
+  [ytmusic]
+  cookies_from = "brave"   # brave, chrome, chromium, firefox, edge, opera, safari
+  ```
+
+  Sintaxis de perfil/keyring: `"chrome:Profile 1"`, `"firefox:default-release"`,
+  `"chromium+gnomekeyring"`, `"brave+kwallet"`.
+- `yt-dlp` en el `PATH` para reproducir (`pip install yt-dlp`).
+
+> **401 al inicio de una sesión.** La primera búsqueda de una sesión nueva de Pi
+> puede devolver `401 Unauthorized` (o `cannot decrypt v11 cookies: no key
+> found`) mientras cliamp refresca la sesión de cookies del navegador; la
+> siguiente petición suele funcionar. La extensión reintenta una vez y muestra
+> la solución en vez del error crudo. Si persiste, iniciá sesión en
+> music.youtube.com en ese navegador o re-ejecutá `cliamp setup` (en keyrings de
+> Linux usá un sufijo como `brave+gnomekeyring`).
 
 ---
 
@@ -251,6 +271,7 @@ Nada de esto requiere modificar cliamp: usa su API IPC (`cliamp remote`).
 | No hay tapa | Solo funciona con YT Music (thumbnail de YouTube). Revisá `~/.local/state/cliamp-widget/helper.log` (o `systemctl --user status cliamp-widget.service` si usás systemd). |
 | No aparece el botón en la barra | `omarchy-shell shell rescanPlugins` y confirmá que `gabox.cliamp-now-playing` esté en `bar.layout` (`cat ~/.config/omarchy/shell.json`). |
 | Cambios de QML no se aplican | Los servicios `keepLoaded` requieren reiniciar el shell: `omarchy restart shell`. |
+| La búsqueda de Pi da 401 / error de auth | cliamp necesita una sesión válida de YT Music. Iniciá sesión en music.youtube.com en el navegador configurado o re-ejecutá `cliamp setup`. En keyrings de Linux usá `cookies_from = "brave+gnomekeyring"` (o `+kwallet`). |
 
 ---
 

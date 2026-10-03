@@ -4,6 +4,44 @@
  * Uses cliamp's version 2 IPC API to search, play, and control music.
  * Default provider is YouTube Music ("ytmusic").
  *
+ * Requirements (for every user who installs this extension)
+ * ----------------------------------------------------------
+ * - cliamp installed and on PATH (https://github.com/bjarneo/cliamp).
+ * - YouTube Music must be authenticated. Two options in
+ *   ~/.config/cliamp/config.toml (or run `cliamp setup`):
+ *
+ *     a) Browser cookies (recommended, zero OAuth):
+ *          [ytmusic]
+ *          cookies_from = "brave"   # brave, chrome, chromium, firefox, edge, opera, safari
+ *
+ *        cliamp also accepts yt-dlp profile/keyring syntax:
+ *          "chrome:Profile 1", "firefox:default-release",
+ *          "chromium+gnomekeyring", "brave+kwallet".
+ *
+ *     b) Google Cloud OAuth:
+ *          [ytmusic]
+ *          client_id     = "..."
+ *          client_secret = "..."
+ *
+ * - yt-dlp on PATH for playback (pip install yt-dlp).
+ *
+ * About the 401 at the start of a session
+ * --------------------------------------
+ * On a fresh session the first ytmusic search can fail with 401 Unauthorized
+ * (or "cannot decrypt v11 cookies: no key found") because the browser cookies
+ * are stale, YouTube rotated the session token, or the Linux keyring is not
+ * configured. The next request usually succeeds. This is a cliamp/ytmusic
+ * authentication warm-up, NOT a bug in this extension. The IPC helper below
+ * detects auth failures, retries once, and returns an actionable message
+ * instead of the raw 401.
+ *
+ * If it persists:
+ *   - Sign in to music.youtube.com in the configured browser, then retry.
+ *   - Re-run `cliamp setup` and set [ytmusic] cookies_from to the right
+ *     browser (e.g. "brave", "chrome", "firefox").
+ *   - On Linux keyrings (Hyprland/GNOME/KDE) use a keyring suffix, e.g.
+ *     "brave+gnomekeyring" or "brave+kwallet".
+ *
  * Provides:
  *  - Tools (auto-usable by the model from natural language):
  *      cliamp_search, cliamp_play, cliamp_control, cliamp_status, cliamp_playlists
@@ -28,6 +66,54 @@ import { Key } from "@earendil-works/pi-tui";
 // ---------------------------------------------------------------------------
 
 const DEFAULT_PROVIDER = "ytmusic";
+
+// ---------------------------------------------------------------------------
+// YouTube Music authentication (cookies) helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Browsers cliamp can read YouTube Music cookies from via `cookies_from` in
+ * ~/.config/cliamp/config.toml. cliamp also accepts yt-dlp profile/keyring
+ * syntax: "chrome:Profile 1", "firefox:default-release",
+ * "chromium+gnomekeyring", "brave+kwallet".
+ */
+const SUPPORTED_COOKIE_BROWSERS =
+  "brave, chrome, chromium, firefox, edge, opera, safari";
+
+const AUTH_FAILURE_RE =
+  /(401|403|unauthorized|unauthenticated|sign in|sign-in|not a bot|authentication|credentials|access blocked|cannot decrypt)/i;
+
+/** True when a cliamp/yt-dlp error looks like a YouTube auth/cookie problem. */
+function isAuthFailure(msg: string): boolean {
+  return AUTH_FAILURE_RE.test(msg ?? "");
+}
+
+/** Actionable guidance appended to auth-related errors. */
+const AUTH_FIX = [
+  `Sign in to YouTube Music in your browser (${SUPPORTED_COOKIE_BROWSERS}) and try again.`,
+  'Run `cliamp setup` and set [ytmusic] cookies_from to your browser, e.g. "brave", "chrome" or "firefox".',
+  'On Linux keyrings (Hyprland/GNOME/KDE) append the keyring, e.g. "brave+gnomekeyring" or "brave+kwallet".',
+].join(" ");
+
+function describeCliampError(operation: string, detail: string, retried: boolean): string {
+  const prefix = retried
+    ? `cliamp ${operation} still failing`
+    : `cliamp call ${operation} failed`;
+  if (isAuthFailure(detail)) {
+    return `${prefix}: YouTube Music authentication failed. ${AUTH_FIX} (detail: ${detail})`;
+  }
+  return `${prefix}: ${detail}`;
+}
+
+/** Block briefly (cross-platform) so a retry hits a warmed-up session. */
+function sleepSync(ms: number): void {
+  try {
+    const sab = new SharedArrayBuffer(4);
+    Atomics.wait(new Int32Array(sab), 0, 0, ms);
+  } catch {
+    // Atomics.wait may be unavailable (e.g. worker threads); retry anyway.
+  }
+}
 
 /** Run a cliamp CLI command and return parsed stdout. */
 function run(args: string[]): { ok: boolean; stdout: string; stderr: string } {
@@ -54,8 +140,15 @@ function ensureDaemon(): void {
   spawn("cliamp", ["--daemon"], { detached: true, stdio: "ignore" }).unref();
 }
 
-/** Call an IPC operation and return the parsed result payload. */
-function call(operation: string, params: Record<string, unknown> = {}): unknown {
+/**
+ * Call an IPC operation and return its result payload (job.result).
+ *
+ * Handles YouTube Music's transient auth failures: the first request of a
+ * fresh session can fail with 401 (or "cannot decrypt cookies") while the
+ * browser cookies are stale, and the next request usually succeeds. We retry
+ * once, then surface an actionable message instead of the raw error.
+ */
+function call(operation: string, params: Record<string, unknown> = {}, attempt = 0): unknown {
   ensureDaemon();
   const r = run([
     "remote",
@@ -65,15 +158,36 @@ function call(operation: string, params: Record<string, unknown> = {}): unknown 
     JSON.stringify(params),
     "--wait",
   ]);
+  const detail = (r.stderr || r.stdout || "unknown error").trim();
+
   if (!r.ok) {
-    throw new Error(`cliamp call ${operation} failed: ${r.stderr || r.stdout || "unknown error"}`);
+    if (isAuthFailure(detail) && attempt === 0) {
+      sleepSync(500);
+      return call(operation, params, 1);
+    }
+    throw new Error(describeCliampError(operation, detail, attempt > 0));
   }
+
+  let parsed: any;
   try {
-    const parsed = JSON.parse(r.stdout);
-    return parsed?.result ?? parsed;
+    parsed = JSON.parse(r.stdout);
   } catch {
     return r.stdout;
   }
+
+  // Defensive: some failures arrive as a failed job inside a valid envelope.
+  const state = parsed?.job?.state;
+  if (parsed?.ok === false || state === "failed" || state === "canceled") {
+    const msg = String(parsed?.job?.error ?? parsed?.error ?? JSON.stringify(parsed));
+    if (isAuthFailure(msg) && attempt === 0) {
+      sleepSync(500);
+      return call(operation, params, 1);
+    }
+    throw new Error(describeCliampError(operation, msg, attempt > 0));
+  }
+
+  // cliamp nests the payload under job.result (some versions use top-level result).
+  return parsed?.job?.result ?? parsed?.result ?? parsed;
 }
 
 /** Read the runtime snapshot (safe fallback for status). */

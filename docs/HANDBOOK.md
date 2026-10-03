@@ -150,6 +150,7 @@ Esto es lo más valioso para no repetir problemas:
 | Cambios QML no aplican | `omarchy restart shell` (y/o limpiar `~/.cache/quickshell/qmlcache/`). |
 | Helper duplicado | El pidfile evita duplicados; si quedaron 2, matar el viejo o reiniciar el shell. |
 | Pi no carga la extensión | `node` parse check o `/reload`. El archivo es `~/.pi/agent/extensions/cliamp.ts`. |
+| Búsqueda de Pi da 401 / error de auth | cliamp necesita sesión válida de YT Music. Iniciar sesión en music.youtube.com en el navegador configurado o re-ejecutar `cliamp setup`. En keyrings de Linux usar `cookies_from = "brave+gnomekeyring"` (o `+kwallet`). |
 | Posición del widget rara | `~/.local/state/cliamp-widget/position.json` (x,y lógicos). Borrarlo = vuelve a 24,24. |
 | Marketplace re-validación | Editar el issue #9773. |
 
