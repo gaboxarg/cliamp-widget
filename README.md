@@ -131,7 +131,7 @@ Integrates cliamp with the Pi agent.
 ### Automatic (recommended)
 
 ```bash
-git clone https://github.com/gabox7/cliamp-widget.git
+git clone https://github.com/gaboxarg/cliamp-widget.git
 cd cliamp-widget
 ./install.sh              # installs everything it detects
 ./install.sh --desktop-only   # desktop widget only
@@ -148,7 +148,7 @@ The widget is self-contained — the plugin starts its own helper, so installing
 the plugin is all you need:
 
 ```bash
-omarchy plugin add https://github.com/gabox7/cliamp-widget.git --enable
+omarchy plugin add https://github.com/gaboxarg/cliamp-widget.git --enable
 ```
 
 That's it: the card appears while music plays.
