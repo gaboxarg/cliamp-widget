@@ -2,7 +2,9 @@
 
 Todas las versiones notables de **cliamp-widget**.
 
-## [Unreleased]
+## [1.1.1] - 2026-10-03
+
+Corrección y documentación de la extensión de Pi (widget sin cambios).
 
 ### Extensión de Pi
 
@@ -37,4 +39,5 @@ Primera versión publicada en el marketplace de Omarchy.
 - `preview.png` para el marketplace.
 - `install.sh` idempotente; la extensión de Pi es opt-in (`--pi` / `--pi-only`).
 
+[1.1.1]: https://github.com/gaboxarg/cliamp-widget/releases/tag/v1.1.1
 [1.1.0]: https://github.com/gaboxarg/cliamp-widget/releases/tag/v1.1.0

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "gabox.cliamp-now-playing",
   "name": "cliamp Now Playing",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "gaboxarg",
   "homepage": "https://github.com/gaboxarg/cliamp-widget",
   "license": "MIT",
