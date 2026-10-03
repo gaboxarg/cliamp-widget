@@ -135,9 +135,9 @@ Integra cliamp con el agente Pi.
 ```bash
 git clone https://github.com/gaboxarg/cliamp-widget.git
 cd cliamp-widget
-./install.sh              # instala todo lo que detecte
-./install.sh --desktop-only   # solo el widget de escritorio
-./install.sh --pi-only        # solo la extensión de Pi
+./install.sh              # widget de escritorio (default; la extensión de Pi es opt-in)
+./install.sh --pi         # instalar también la extensión de Pi
+./install.sh --pi-only    # solo la extensión de Pi
 ./install.sh --with-systemd   # correr el helper como servicio systemd
 ```
 

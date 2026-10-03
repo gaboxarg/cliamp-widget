@@ -133,9 +133,9 @@ Integrates cliamp with the Pi agent.
 ```bash
 git clone https://github.com/gaboxarg/cliamp-widget.git
 cd cliamp-widget
-./install.sh              # installs everything it detects
-./install.sh --desktop-only   # desktop widget only
-./install.sh --pi-only        # Pi extension only
+./install.sh              # desktop widget (default; Pi extension is opt-in)
+./install.sh --pi         # also install the Pi extension
+./install.sh --pi-only    # Pi extension only
 ./install.sh --with-systemd   # run the helper as a systemd service instead
 ```
 

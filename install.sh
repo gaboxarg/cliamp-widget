@@ -17,18 +17,22 @@ SERVICE_NAME="cliamp-widget.service"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 INSTALL_DESKTOP=1
-INSTALL_PI=1
+# La extensión de Pi es OPT-IN explícita: nunca copiar código ejecutable a
+# ~/.pi/agent/extensions/ por defecto (Pi auto-carga lo que hay ahí).
+INSTALL_PI=0
 WITH_SYSTEMD=0
 
 usage() {
   cat <<'EOF'
 Uso: ./install.sh [opciones]
 
-Sin opciones instala todo lo que detecte (widget autocontenido + extensión de Pi).
+Por defecto instala SOLO el widget de escritorio (Omarchy).
+La extensión de Pi es opt-in explícita (--pi / --pi-only).
 
 Opciones:
-  --desktop-only    instalar solo el widget de escritorio (Omarchy)
+  --pi              instalar también la extensión de Pi (opt-in)
   --pi-only         instalar solo la extensión de Pi
+  --desktop-only    instalar solo el widget de escritorio (default)
   --with-systemd    correr el helper como servicio systemd (en vez del plugin)
   -h, --help        esta ayuda
 EOF
@@ -36,8 +40,9 @@ EOF
 
 for arg in "$@"; do
   case "$arg" in
-    --desktop-only) INSTALL_DESKTOP=1; INSTALL_PI=0 ;;
+    --pi)           INSTALL_PI=1 ;;
     --pi-only)      INSTALL_DESKTOP=0; INSTALL_PI=1 ;;
+    --desktop-only) INSTALL_DESKTOP=1; INSTALL_PI=0 ;;
     --with-systemd) WITH_SYSTEMD=1 ;;
     -h|--help)      usage; exit 0 ;;
     *) echo "opción desconocida: $arg" >&2; usage; exit 2 ;;
