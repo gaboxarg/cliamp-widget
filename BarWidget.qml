@@ -11,6 +11,14 @@ BarWidget {
     ? bar.shell.serviceFor("gabox.cliamp-now-playing")
     : null
   readonly property bool hidden: service ? service.hidden : false
+  readonly property bool idleHidden: service
+    ? (service.hideBarWhenIdle === true && service.hasMedia === false)
+    : false
+
+  // Hide the bar button entirely when cliamp is idle (stopped / no track),
+  // freeing the bar slot. Set "hideBarWhenIdle": false in settings.json to
+  // keep the button always visible (previous behavior).
+  visible: !root.idleHidden
 
   implicitWidth: Style.bar.iconSlot
   implicitHeight: barSize

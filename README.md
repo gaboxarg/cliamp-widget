@@ -44,7 +44,7 @@ A floating card that appears on the desktop while music plays:
 - ✋ **Draggable**: move it anywhere; the position is persisted.
 - 🙈 **Auto-hide**: disappears when nothing is playing.
 - ⏲️ **Peek mode**: optionally appear every N seconds (see configuration).
-- 🎛️ **Bar button**: a ♫ icon in the Omarchy bar to show/hide it.
+- 🎛️ **Bar button**: a ♫ icon in the Omarchy bar to show/hide it; hides itself when cliamp is idle (`hideBarWhenIdle`).
 - 🔌 **IPC**: scriptable via `omarchy-shell cliamp-widget toggle`.
 
 ### Requirements
@@ -65,7 +65,8 @@ A floating card that appears on the desktop while music plays:
 {
   "peekEverySeconds": 0,
   "peekDurationSeconds": 6,
-  "showOnTrackChange": true
+  "showOnTrackChange": true,
+  "hideBarWhenIdle": true
 }
 ```
 
@@ -74,6 +75,7 @@ A floating card that appears on the desktop while music plays:
 | `peekEverySeconds` | `0` = always visible while playing; `N > 0` = show every N seconds. |
 | `peekDurationSeconds` | How long it stays visible on each peek. |
 | `showOnTrackChange` | Briefly show it when the track changes. |
+| `hideBarWhenIdle` | `true` = hide the ♫ bar button when cliamp is idle (stopped / no track), freeing bar space. Set `false` to keep it always visible. |
 
 Changes apply on their own within ~10 seconds (no restart needed).
 

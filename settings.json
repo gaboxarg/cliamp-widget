@@ -1,5 +1,6 @@
 {
   "peekEverySeconds": 0,
   "peekDurationSeconds": 6,
-  "showOnTrackChange": true
+  "showOnTrackChange": true,
+  "hideBarWhenIdle": true
 }

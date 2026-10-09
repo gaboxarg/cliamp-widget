@@ -37,6 +37,7 @@ Item {
   property int peekEvery: 0        // seconds; 0 = stay visible while playing
   property int peekDuration: 6     // seconds
   property bool showOnTrackChange: true
+  property bool hideBarWhenIdle: true
 
   readonly property bool windowVisible: !hidden && hasMedia && (peekEvery <= 0 || peekShowing)
 
@@ -68,6 +69,7 @@ Item {
       if (o.peekEverySeconds !== undefined) root.peekEvery = Math.max(0, Number(o.peekEverySeconds) || 0)
       if (o.peekDurationSeconds !== undefined) root.peekDuration = Math.max(1, Number(o.peekDurationSeconds) || 6)
       if (o.showOnTrackChange !== undefined) root.showOnTrackChange = o.showOnTrackChange === true
+      if (o.hideBarWhenIdle !== undefined) root.hideBarWhenIdle = o.hideBarWhenIdle === true
     } catch (e) {}
   }
 
@@ -187,7 +189,7 @@ Item {
     function toggle(): string { root.toggleHidden(); return root.hidden ? "hidden" : "shown" }
     function show(): string { root.showWidget(); return "shown" }
     function hide(): string { root.hideWidget(); return "hidden" }
-    function state(): string { return JSON.stringify({ hidden: root.hidden, visible: root.windowVisible, title: root.title, playing: root.playing }) }
+    function state(): string { return JSON.stringify({ hidden: root.hidden, visible: root.windowVisible, title: root.title, playing: root.playing, hasMedia: root.hasMedia, hideBarWhenIdle: root.hideBarWhenIdle }) }
     function ping(): string { return "ok" }
   }
 

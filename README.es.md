@@ -45,7 +45,7 @@ Una tarjeta flotante que aparece en el escritorio mientras suena música:
 - ✋ **Arrastrable**: movelo a cualquier parte del escritorio; la posición se guarda.
 - 🙈 **Auto-ocultado**: desaparece cuando no hay nada reproduciéndose.
 - ⏲️ **Modo "peek"**: opcionalmente aparecer cada N segundos (ver configuración).
-- 🎛️ **Botón en la barra**: un ícono ♫ en la barra de Omarchy para mostrar/ocultar.
+- 🎛️ **Botón en la barra**: un ícono ♫ en la barra de Omarchy para mostrar/ocultar; se oculta solo cuando cliamp está en idle (`hideBarWhenIdle`).
 - 🔌 **IPC**: controlable por terminal con `omarchy-shell cliamp-widget toggle`.
 
 ### Requisitos
@@ -67,7 +67,8 @@ Una tarjeta flotante que aparece en el escritorio mientras suena música:
 {
   "peekEverySeconds": 0,
   "peekDurationSeconds": 6,
-  "showOnTrackChange": true
+  "showOnTrackChange": true,
+  "hideBarWhenIdle": true
 }
 ```
 
@@ -76,6 +77,7 @@ Una tarjeta flotante que aparece en el escritorio mientras suena música:
 | `peekEverySeconds` | `0` = siempre visible mientras suena; `N > 0` = aparecer cada N segundos. |
 | `peekDurationSeconds` | Cuántos segundos queda visible en cada "peek". |
 | `showOnTrackChange` | Mostrarlo brevemente al cambiar de canción. |
+| `hideBarWhenIdle` | `true` = ocultar el botón ♫ de la barra cuando cliamp está en idle (detenido / sin canción), liberando espacio. Poné `false` para mantenerlo siempre visible. |
 
 Los cambios se aplican solos a los ~10 segundos (no hace falta reiniciar).
 

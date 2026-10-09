@@ -2,6 +2,19 @@
 
 Todas las versiones notables de **cliamp-widget**.
 
+## [1.2.0] - 2026-10-08
+
+Nueva opción `hideBarWhenIdle`: el botón ♫ de la barra se oculta cuando cliamp
+está en idle (detenido / sin canción) y libera espacio en la barra. Reaparece
+automáticamente al reproducir. Por defecto activada; configurable en
+`settings.json`.
+
+### Widget
+
+- `hideBarWhenIdle` (default `true`): oculta el botón de la barra cuando no hay
+  reproducción. `false` mantiene el comportamiento anterior (botón siempre visible).
+- `Service.qml` expone `hasMedia` y `hideBarWhenIdle`; el IPC `state` los incluye.
+
 ## [1.1.1] - 2026-10-03
 
 Corrección y documentación de la extensión de Pi (widget sin cambios).
@@ -39,5 +52,6 @@ Primera versión publicada en el marketplace de Omarchy.
 - `preview.png` para el marketplace.
 - `install.sh` idempotente; la extensión de Pi es opt-in (`--pi` / `--pi-only`).
 
+[1.2.0]: https://github.com/gaboxarg/cliamp-widget/releases/tag/v1.2.0
 [1.1.1]: https://github.com/gaboxarg/cliamp-widget/releases/tag/v1.1.1
 [1.1.0]: https://github.com/gaboxarg/cliamp-widget/releases/tag/v1.1.0
